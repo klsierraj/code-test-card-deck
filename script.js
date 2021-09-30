@@ -177,5 +177,36 @@ class CardDeck {
 // Create a new card deck.
 const deck = new CardDeck(".deck", ".hand");
 
-// Take a look at the deck object and its methods.
 console.log(deck);
+FilterByParams();
+
+function FilterByParams() {
+
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+  
+	const filterParams = ["cards", "suits", "ranks", "limit", "sorted"];
+	const cardPropsByUrlParam = {
+	  cards: "id",
+	  suits: "suit",
+	  ranks: "rank",
+	};
+	let isFilterable = false;
+  
+	filterParams.forEach((param) => {
+	  let paramString = urlParams.get(param);
+	  let paramArray = paramString && paramString.split(" ");
+	  if (paramArray) {
+		if (param === "limit") {
+		  deck.limit(+urlParams.get(param));
+		} else if (param === "sorted") {
+		  deck.sort();
+		} else {
+		  param !== "ranks" ? paramArray : (paramArray = paramArray.map((rank) => +rank));
+		  deck.filter(cardPropsByUrlParam[param], paramArray);
+		  isFilterable = true;
+		}
+	  }
+	});
+	isFilterable && deck.drawFiltered();
+  }
